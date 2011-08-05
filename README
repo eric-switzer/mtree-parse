@@ -1,0 +1,5 @@
+Parse mtree files into a file tree dictionary with checksums and file sizes
+run mtree as:
+mtree -c -K md5digest -p test_tree/ > mtree_test.spec
+and clean up with (TODO: write this in python)
+cat mtree_test.spec | sed 'N;s/\\\n *//g;P;D;' | sed 'N;s/\\\n *//g;P;D;' | sed 'N;s/\n\.\./ ../g;P;D;' > mtree_test.spec_clean
