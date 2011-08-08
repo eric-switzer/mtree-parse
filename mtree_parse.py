@@ -7,6 +7,10 @@ import utils
 # TODO: write mtree output pre-processor
 # TODO: write full path reconstruction
 # TODO: document + unit tests
+# TODO: why does the same directory seem to have multiply hashes?
+# TODO: add name_only flag to extract the name of the file/dir only
+# TODO: add ignore_link flag to parser 
+# TODO: diff --brief -r showing differences in dirs with same hash?
 
 
 def parse_fileitem(fileitem):
@@ -151,5 +155,5 @@ def process_mtree(filename, tree_shelvename, leaves_shelvename):
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    process_mtree("mtree.spec_clean", "mtree_tree.shelve",
+    process_mtree("mtree.spec_6aug11_clean", "mtree_tree.shelve",
                                       "mtree_leaves.shelve")

@@ -91,6 +91,18 @@ def reconstruct_path(parent_tree, nodenumber):
     return path
 
 
+# TODO: add handling if nodenumber is a file and not a directory
+def dirs_under_path(tree, leaves, nodenumber):
+    dirlist = []
+    for branch in tree[nodenumber]:
+        entry = leaves[repr(branch)]
+        if (entry['type'] == 'dir'):
+            dirlist.append(repr(branch))
+            dirlist.append(dirs_under_path(tree, leaves, repr(branch)))
+
+    return dirlist
+
+
 def flatten(list_in, ltypes=(list, tuple)):
     '''see:
     http://rightfootin.blogspot.com/2006/09/more-on-python-flatten.html
@@ -120,3 +132,14 @@ def reconstruct_pathname(parent_tree, leaves, nonumber):
         named_path.append(leaves[repr(path_ind)]["name"])
 
     return "/".join(named_path)
+
+
+def hashes_under_tree(tree, leaves, tree_index):
+    dirpath = dirs_under_path(tree, leaves, tree_index)
+    dirpath = flatten(dirpath)
+    hashlist = []
+    #print dirpath
+    for diritem in dirpath:
+        hashlist.append(leaves[diritem]["md5dir"])
+
+    return hashlist

@@ -1,6 +1,8 @@
 '''common data management tasks'''
 import shelve
 import utils
+import sys
+import copy
 
 # TODO: prune common subdirectories to largest encompassing directory
 def find_largest_common_directories(tree_shelvename, leaves_shelvename):
@@ -36,6 +38,32 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename):
         file_size = file_size[0]
         md5_size_dict[md5_key] = file_size
 
+
+    cutcount = 0
+    
+    reduced_md5_size_dict = copy.deepcopy(md5_size_dict)
+    for md5_key in md5_size_dict:
+        if (len(md5dict[md5_key]) > 1):
+            md5cutlist = []
+            for entry in md5dict[md5_key]:
+                md5under_path = utils.hashes_under_tree(tree, leaves, 
+                                                        entry["leaf_number"])
+                md5cutlist.append(set(md5under_path))
+
+            combined_cutlist = md5cutlist[0]
+            for md5list in md5cutlist:
+                combined_cutlist.intersection(md5list)
+
+            combined_cutlist = list(combined_cutlist)
+
+            for cutmd5 in combined_cutlist:
+                if cutmd5 in reduced_md5_size_dict:
+                    cutcount += 1
+                    del reduced_md5_size_dict[cutmd5]
+
+    print "number of trees under a duplicate tree cut: %d" % (cutcount)
+
+    # TODO: reduced_...
     for key, value in sorted(md5_size_dict.iteritems(),
                              key=lambda (k, v): (v, k),
                              reverse=True):
