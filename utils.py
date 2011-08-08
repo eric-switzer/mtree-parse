@@ -80,7 +80,7 @@ def make_parent_tree(tree):
 
 def reconstruct_path(parent_tree, nodenumber):
     '''given the index of a file/directory leaf, find the nested list of its
-    parents
+    parents, not including itself
     '''
     parent_index = int(parent_tree[nodenumber])
     path = []
@@ -122,11 +122,14 @@ def flatten(list_in, ltypes=(list, tuple)):
     return ltype(list_in)
 
 
-def reconstruct_pathname(parent_tree, leaves, nonumber):
+def reconstruct_pathname(parent_tree, leaves, nodenumber):
     '''given the index of a directory/file leaf, reconstruct its full path'''
-    path = reconstruct_path(parent_tree, nonumber)
+    # append the path itself (on top of parent path)
+    path = [nodenumber]
+    path.append(reconstruct_path(parent_tree, nodenumber))
     path = flatten(path)
     path.reverse()
+
     named_path = []
     for path_ind in path:
         named_path.append(leaves[repr(path_ind)]["name"])
@@ -134,12 +137,21 @@ def reconstruct_pathname(parent_tree, leaves, nonumber):
     return "/".join(named_path)
 
 
-def hashes_under_tree(tree, leaves, tree_index):
+def hashes_under_tree(tree, leaves, tree_index, verbose=False):
     dirpath = dirs_under_path(tree, leaves, tree_index)
     dirpath = flatten(dirpath)
     hashlist = []
-    #print dirpath
+    if verbose:
+        parent_tree = make_parent_tree(tree)
+        print "-" * 80
+        print dirpath
+        print "from: " + reconstruct_pathname(parent_tree, leaves,
+                                              int(tree_index))
+
     for diritem in dirpath:
+        if verbose:
+            print reconstruct_pathname(parent_tree, leaves, int(diritem))
+
         hashlist.append(leaves[diritem]["md5dir"])
 
     return hashlist
