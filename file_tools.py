@@ -4,8 +4,9 @@ import utils
 import sys
 import copy
 
-# TODO: prune common subdirectories to largest encompassing directory
-def find_largest_common_directories(tree_shelvename, leaves_shelvename):
+# TODO: break this into smaller component functions
+def find_largest_common_directories(tree_shelvename, leaves_shelvename,
+                                    print_size_only=False):
     '''find the largest directories that share the same checksum of all data
     under them'''
     tree = shelve.open(tree_shelvename, 'r')
@@ -62,21 +63,28 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename):
                     del reduced_md5_size_dict[cutmd5]
 
     print "number of trees under a duplicate tree cut: %d" % (cutcount)
-
-    # TODO: reduced_...
-    for key, value in sorted(md5_size_dict.iteritems(),
+    total_duplicated_size = 0
+    for key, value in sorted(reduced_md5_size_dict.iteritems(),
                              key=lambda (k, v): (v, k),
                              reverse=True):
         if (len(md5dict[key]) > 1):
-            print "-" * 80
-            print "%s: %d" % (key, value)
-            for entry in md5dict[key]:
-                full_pathname = utils.reconstruct_pathname(parent_tree, leaves,
-                                                     int(entry["leaf_number"]))
-                print full_pathname
+            total_duplicated_size += (len(md5dict[key])-1)*value
 
+            if print_size_only:
+                print value
+            else:
+                print "-" * 80
+                print "%s: %d" % (key, value)
+                for entry in md5dict[key]:
+                    full_pathname = utils.reconstruct_pathname(parent_tree, 
+                                                               leaves,
+                                                 int(entry["leaf_number"]))
+                    print full_pathname
+
+    print "data volume in duplicated directories %d" % total_duplicated_size
 
 # TODO: command-line utility
 if __name__ == '__main__':
     find_largest_common_directories("mtree_tree.shelve",
-                                    "mtree_leaves.shelve")
+                                    "mtree_leaves.shelve",
+                                    print_size_only=False)

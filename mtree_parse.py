@@ -8,7 +8,7 @@ import utils
 # TODO: write full path reconstruction
 # TODO: document + unit tests
 # TODO: add name_only flag to extract the name of the file/dir only
-# TODO: add ignore_link flag to parser 
+# TODO: add link handling to parser
 
 
 def parse_fileitem(fileitem):
@@ -54,6 +54,9 @@ def parse_line(line):
         if "type" in entry:
             if (entry["type"] == "dir"):
                 line_type = "dir"
+
+            if (entry["type"] == "link"):
+                line_type = "link"
 
     return (line_type, entry)
 
@@ -153,5 +156,5 @@ def process_mtree(filename, tree_shelvename, leaves_shelvename):
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    process_mtree("mtree.spec_6aug11_clean", "mtree_tree.shelve",
+    process_mtree("mtree.spec_8aug11_clean", "mtree_tree.shelve",
                                       "mtree_leaves.shelve")
