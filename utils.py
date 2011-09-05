@@ -1,6 +1,7 @@
 '''Utilities to support mtree_parse and tools'''
 import hashlib
 
+
 # TODO: inherit list? uglier?
 class Filedata():
     '''
@@ -93,6 +94,7 @@ def reconstruct_path(parent_tree, nodenumber):
 
 # TODO: add handling if nodenumber is a file and not a directory
 def dirs_under_path(tree, leaves, nodenumber):
+    '''Find directories under a path given the tree and names'''
     dirlist = []
     for branch in tree[nodenumber]:
         entry = leaves[repr(branch)]
@@ -138,6 +140,7 @@ def reconstruct_pathname(parent_tree, leaves, nodenumber):
 
 
 def hashes_under_tree(tree, leaves, tree_index, verbose=False):
+    '''Find all the hashes under a directory given the tree and names'''
     dirpath = dirs_under_path(tree, leaves, tree_index)
     dirpath = flatten(dirpath)
     hashlist = []

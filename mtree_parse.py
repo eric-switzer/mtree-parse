@@ -4,11 +4,34 @@ Eric Switzer Aug. 5 2011
 '''
 import shelve
 import utils
-# TODO: write mtree output pre-processor
-# TODO: write full path reconstruction
 # TODO: document + unit tests
 # TODO: add name_only flag to extract the name of the file/dir only
 # TODO: add link handling to parser
+
+
+# TODO: more efficient implementation using xreadlines?
+def clean_mtree_spec(filename_in, filename_out):
+    '''prepare the mtree spec file for single-line parser
+    equivalent to:
+    cat mtree_test.spec | \
+        sed 'N;s/\\\n *//g;P;D;' | \
+        sed 'N;s/\\\n *//g;P;D;' | \
+        sed 'N;s/\n\.\./ ../g;P;D;' > mtree_test.spec_clean
+    '''
+    mtree_rawspecfile = open(filename_in, 'r')
+    mtree_specfile = open(filename_out, 'w')
+
+    with open(filename_in) as sequence_file:
+        mtree_sequence = sequence_file.read()  # read the rest
+
+    replacement = {"\\\n": "", " " * 16: "", "\n..": " ..", "\n ..": ""}
+    for i, j in replacement.iteritems():
+        mtree_sequence = mtree_sequence.replace(i, j)
+
+    mtree_specfile.write(mtree_sequence)
+
+    mtree_rawspecfile.close()
+    mtree_specfile.close()
 
 
 def parse_fileitem(fileitem):
@@ -66,7 +89,10 @@ def parse_mtree(filename):
     '''parse an mtree into a dictionary describing the branches at each node
     and a separate dictionary with information about each item
     '''
-    mtree_specfile = open(filename, 'r')
+    filename_clean = filename + "_clean"
+    clean_mtree_spec(filename, filename_clean)
+
+    mtree_specfile = open(filename_clean, 'r')
     # a list of directories up to the current parse path
     direnvironment = []
     lookup = {}
@@ -136,11 +162,11 @@ def process_mtree(filename, tree_shelvename, leaves_shelvename):
     (link_list, lookup) = parse_mtree(filename)
 
     print "adding cumulative checksums"
-    utils.decorate_with_aggregates(link_list, lookup, "md5digest", 
+    utils.decorate_with_aggregates(link_list, lookup, "md5digest",
                                    "md5dir", "md5")
 
     print "adding tree sizes"
-    utils.decorate_with_aggregates(link_list, lookup, "size", "tree_size", 
+    utils.decorate_with_aggregates(link_list, lookup, "size", "tree_size",
                                    "total", include_dir=True)
 
     print "writing to shelve files"
@@ -154,7 +180,8 @@ def process_mtree(filename, tree_shelvename, leaves_shelvename):
         outleaves[repr(leafkey)] = lookup[leafkey]
     outleaves.close()
 
+
 # TODO: command-line utility
 if __name__ == '__main__':
-    process_mtree("mtree.spec_8aug11_clean", "mtree_tree.shelve",
+    process_mtree("mtree.spec_10aug11", "mtree_tree.shelve",
                                       "mtree_leaves.shelve")

@@ -1,8 +1,8 @@
 '''common data management tasks'''
 import shelve
 import utils
-import sys
 import copy
+
 
 # TODO: break this into smaller component functions
 def find_largest_common_directories(tree_shelvename, leaves_shelvename,
@@ -39,15 +39,14 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
         file_size = file_size[0]
         md5_size_dict[md5_key] = file_size
 
-
     cutcount = 0
-    
+
     reduced_md5_size_dict = copy.deepcopy(md5_size_dict)
     for md5_key in md5_size_dict:
         if (len(md5dict[md5_key]) > 1):
             md5cutlist = []
             for entry in md5dict[md5_key]:
-                md5under_path = utils.hashes_under_tree(tree, leaves, 
+                md5under_path = utils.hashes_under_tree(tree, leaves,
                                                         entry["leaf_number"])
                 md5cutlist.append(set(md5under_path))
 
@@ -68,7 +67,7 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
                              key=lambda (k, v): (v, k),
                              reverse=True):
         if (len(md5dict[key]) > 1):
-            total_duplicated_size += (len(md5dict[key])-1)*value
+            total_duplicated_size += (len(md5dict[key]) - 1) * value
 
             if print_size_only:
                 print value
@@ -76,7 +75,7 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
                 print "-" * 80
                 print "%s: %d" % (key, value)
                 for entry in md5dict[key]:
-                    full_pathname = utils.reconstruct_pathname(parent_tree, 
+                    full_pathname = utils.reconstruct_pathname(parent_tree,
                                                                leaves,
                                                  int(entry["leaf_number"]))
                     print full_pathname
