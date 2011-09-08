@@ -183,5 +183,5 @@ def process_mtree(filename, tree_shelvename, leaves_shelvename):
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    process_mtree("mtree.spec_10aug11", "mtree_tree.shelve",
+    process_mtree("mtree.spec_5sept11", "mtree_tree.shelve",
                                       "mtree_leaves.shelve")

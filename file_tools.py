@@ -5,8 +5,11 @@ import copy
 
 
 # TODO: break this into smaller component functions
+# TODO: make more efficient
+# TODO: make exclude list
 def find_largest_common_directories(tree_shelvename, leaves_shelvename,
-                                    print_size_only=False):
+                                    print_size_only=False,
+                                    exclude_list=[]):
     '''find the largest directories that share the same checksum of all data
     under them'''
     tree = shelve.open(tree_shelvename, 'r')
@@ -78,7 +81,11 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
                     full_pathname = utils.reconstruct_pathname(parent_tree,
                                                                leaves,
                                                  int(entry["leaf_number"]))
-                    print full_pathname
+                    if not any(excluded in full_pathname
+                               for excluded in exclude_list):
+                        print full_pathname
+                    else:
+                        print "#: " + full_pathname
 
     print "data volume in duplicated directories %d" % total_duplicated_size
 
@@ -86,4 +93,5 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
 if __name__ == '__main__':
     find_largest_common_directories("mtree_tree.shelve",
                                     "mtree_leaves.shelve",
-                                    print_size_only=False)
+                                    print_size_only=False,
+                                    exclude_list=["iPhoto"])
