@@ -4,6 +4,36 @@ import utils
 import copy
 
 
+# TODO: output one file with duplicates, one with uniques
+# TODO: output script to remove dups, move uniques
+def find_duplicate(tree_shelvename, leaves_shelvename,
+                   ctree_shelvename, cleaves_shelvename,
+                   write_rm_list=None):
+    '''locate all of the checksums on one volume in a comparison volume
+    write_rm_list optionally prints rm commands to delete anything that exists
+    somewhere on the comparison volume.
+    '''
+    tree = shelve.open(tree_shelvename, 'r')
+    leaves = shelve.open(leaves_shelvename, 'r')
+    parent_tree = utils.make_parent_tree(tree)
+    ctree = shelve.open(ctree_shelvename, 'r')
+    cleaves = shelve.open(cleaves_shelvename, 'r')
+    parent_ctree = utils.make_parent_tree(ctree)
+
+    volhash = utils.make_hash_index(parent_tree, leaves)
+    cvolhash = utils.make_hash_index(parent_ctree, cleaves)
+    for key, filelist in volhash.iteritems():
+        if key in cvolhash:
+            cfilelist = cvolhash[key]
+            print key + "-" * 48
+
+            for filename in filelist:
+                print filename
+
+            print "has duplicate file(s) in the comparison volume: "
+            for filename in cfilelist:
+                print filename
+
 # TODO: break this into smaller component functions
 # TODO: make more efficient
 # TODO: make exclude list
@@ -91,7 +121,10 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    find_largest_common_directories("mtree_tree.shelve",
-                                    "mtree_leaves.shelve",
-                                    print_size_only=False,
-                                    exclude_list=["iPhoto"])
+    #find_largest_common_directories("mtree_tree.shelve",
+    #                                "mtree_leaves.shelve",
+    #                                print_size_only=False,
+    #                                exclude_list=["iPhoto"])
+
+    find_duplicate("mtree_2TB_tree.shelve", "mtree_2TB_leaves.shelve",
+                   "mtree_tree.shelve", "mtree_leaves.shelve")

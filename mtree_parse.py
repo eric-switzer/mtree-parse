@@ -183,5 +183,7 @@ def process_mtree(filename, tree_shelvename, leaves_shelvename):
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    process_mtree("mtree.spec_5sept11", "mtree_tree.shelve",
-                                      "mtree_leaves.shelve")
+    #process_mtree("mtree.spec_5sept11", "mtree_tree.shelve",
+    #                                  "mtree_leaves.shelve")
+    process_mtree("mtree_2TB_mac.spec", "mtree_2TB_tree.shelve",
+                                      "mtree_2TB_leaves.shelve")

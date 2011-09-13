@@ -63,6 +63,26 @@ def decorate_with_aggregates(tree, leaves, in_field, out_field,
     return result
 
 
+# TODO: save out entry = leaves[leafkey]; entry["leaf_number"] = leafkey
+def make_hash_index(parent_tree, leaves):
+    '''make a dictionary which links a checksum to all its files:
+        { md5 : [file1, file2, ...] }
+    '''
+    md5dict = {}
+    for leafkey in leaves.keys():
+        if ((leaves[leafkey]['type'] == 'file') and
+            ('md5digest' in leaves[leafkey])):
+            item_md5 = leaves[leafkey]['md5digest']
+            if item_md5 not in md5dict:
+                md5dict[item_md5] = []
+
+            entry = reconstruct_pathname(parent_tree, leaves, int(leafkey))
+            md5dict[item_md5].append(entry)
+            #print item_md5 + entry
+
+    return md5dict
+
+
 def make_parent_tree(tree):
     '''convert a dictionary representing parent_ind: [branch_ind1,...] to a
     dictionary in the form branch_ind1 : parent_ind
@@ -124,6 +144,7 @@ def flatten(list_in, ltypes=(list, tuple)):
     return ltype(list_in)
 
 
+# TODO: replace e.g. \040 with "\ "
 def reconstruct_pathname(parent_tree, leaves, nodenumber):
     '''given the index of a directory/file leaf, reconstruct its full path'''
     # append the path itself (on top of parent path)
