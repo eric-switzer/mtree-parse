@@ -144,7 +144,6 @@ def flatten(list_in, ltypes=(list, tuple)):
     return ltype(list_in)
 
 
-# TODO: replace e.g. \040 with "\ "
 def reconstruct_pathname(parent_tree, leaves, nodenumber):
     '''given the index of a directory/file leaf, reconstruct its full path'''
     # append the path itself (on top of parent path)
@@ -157,7 +156,16 @@ def reconstruct_pathname(parent_tree, leaves, nodenumber):
     for path_ind in path:
         named_path.append(leaves[repr(path_ind)]["name"])
 
-    return "/".join(named_path)
+    pathname = "/".join(named_path)
+    # TODO: do something with unicode
+    pathname = pathname.replace(r"\040", "\\ ")
+    pathname = pathname.replace(r"\043", "#")
+    pathname = pathname.replace(r"\133", "\\[")
+    for pattern in ["(", ")", "[", "]", r"'", "|", "&"]:
+        if pattern in pathname:
+            pathname = pathname.replace(pattern,"\\" + pattern)
+
+    return pathname
 
 
 def hashes_under_tree(tree, leaves, tree_index, verbose=False):

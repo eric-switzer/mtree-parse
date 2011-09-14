@@ -59,7 +59,7 @@ def parse_line(line):
     if (len(line_split) == 0):
         return ("blank", "blank")
 
-    # diretory start and stop declaration lines begin with #
+    # directory start and stop declaration lines begin with #
     if (line[0] == "#"):
         if (line_split[-1] == ".."):
             line_type = "pop"
