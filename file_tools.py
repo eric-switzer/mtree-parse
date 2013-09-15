@@ -1,4 +1,4 @@
-'''common data management tasks'''
+"""common data management tasks"""
 import shelve
 import utils
 import copy
@@ -9,12 +9,12 @@ import copy
 def find_duplicate(tree_shelvename, leaves_shelvename,
                    ctree_shelvename, cleaves_shelvename,
                    write_rm_list=None):
-    '''locate all of the checksums on one volume in a comparison volume
+    """locate all of the checksums on one volume in a comparison volume
     write_rm_list optionally prints rm commands to delete anything that exists
     somewhere on the comparison volume. rm_list is only files, but to prune
     emtpy directories, issue:
     find <parent-dir> -depth -type d -empty -exec rmdir -v {} \;
-    '''
+    """
     tree = shelve.open(tree_shelvename, 'r')
     leaves = shelve.open(leaves_shelvename, 'r')
     parent_tree = utils.make_parent_tree(tree)
@@ -53,8 +53,9 @@ def find_duplicate(tree_shelvename, leaves_shelvename,
 def find_largest_common_directories(tree_shelvename, leaves_shelvename,
                                     print_size_only=False,
                                     exclude_list=[]):
-    '''find the largest directories that share the same checksum of all data
-    under them'''
+    """find the largest directories that share the same checksum of all data
+    under them
+    """
     tree = shelve.open(tree_shelvename, 'r')
     leaves = shelve.open(leaves_shelvename, 'r')
     parent_tree = utils.make_parent_tree(tree)
@@ -127,8 +128,8 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
                     if not any(excluded in full_pathname
                                for excluded in exclude_list):
                         print full_pathname
-                    else:
-                        print "#: " + full_pathname
+                    #else:
+                    #    print "#: " + full_pathname
 
     print "data volume in duplicated directories %d" % total_duplicated_size
 
@@ -138,8 +139,8 @@ if __name__ == '__main__':
     #find_largest_common_directories("mtree_tree.shelve",
     #                                "mtree_leaves.shelve",
     #                                print_size_only=False,
-    #                                exclude_list=["iPhoto"])
+    #                                exclude_list=["iPhoto", "Documents"])
 
-    find_duplicate("mtree_2TB_tree.shelve", "mtree_2TB_leaves.shelve",
+    find_duplicate("mtree_tree_toaster.shelve", "mtree_leaves_toaster.shelve",
                    "mtree_tree.shelve", "mtree_leaves.shelve",
                    write_rm_list="clean.bash")

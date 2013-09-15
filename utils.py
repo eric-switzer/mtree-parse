@@ -1,13 +1,13 @@
-'''Utilities to support mtree_parse and tools'''
+"""Utilities to support mtree_parse and tools"""
 import hashlib
 
 
 # TODO: inherit list? uglier?
 class Filedata():
-    '''
+    """
     This class extends list to do various operations useful for file
     properties.
-    '''
+    """
     def __init__(self):
         self.mhash = hashlib.md5()
         self.property_list = []
@@ -16,23 +16,23 @@ class Filedata():
         self.property_list.append(item)
 
     def md5(self):
-        '''return a checksum of a list of checksums'''
+        """return a checksum of a list of checksums"""
         # TODO: is "".join(self.property_list) faster?
         for md5item in self.property_list:
             self.mhash.update(md5item)
         return self.mhash.hexdigest()
 
     def total(self):
-        '''take the sum of items in a list as integers'''
+        """take the sum of items in a list as integers"""
         return sum([int(x) for x in self.property_list])
 
 
 # TODO: follow links
 def decorate_with_aggregates(tree, leaves, in_field, out_field,
                              callback, level=0, include_dir=False):
-    '''go through each directory and aggregate information about all the files
+    """go through each directory and aggregate information about all the files
     that they contain
-    '''
+    """
     agg_list = Filedata()
     for leaf_ind in tree[level]:
         leaf_info = leaves[leaf_ind]
@@ -65,9 +65,9 @@ def decorate_with_aggregates(tree, leaves, in_field, out_field,
 
 # TODO: save out entry = leaves[leafkey]; entry["leaf_number"] = leafkey
 def make_hash_index(parent_tree, leaves):
-    '''make a dictionary which links a checksum to all its files:
+    """make a dictionary which links a checksum to all its files:
         { md5 : [file1, file2, ...] }
-    '''
+    """
     md5dict = {}
     for leafkey in leaves.keys():
         if ((leaves[leafkey]['type'] == 'file') and
@@ -84,9 +84,9 @@ def make_hash_index(parent_tree, leaves):
 
 
 def make_parent_tree(tree):
-    '''convert a dictionary representing parent_ind: [branch_ind1,...] to a
+    """convert a dictionary representing parent_ind: [branch_ind1,...] to a
     dictionary in the form branch_ind1 : parent_ind
-    '''
+    """
     parent_tree = {}
     for tree_ind in tree.keys():
         branches = tree[tree_ind]
@@ -100,9 +100,9 @@ def make_parent_tree(tree):
 
 
 def reconstruct_path(parent_tree, nodenumber):
-    '''given the index of a file/directory leaf, find the nested list of its
+    """given the index of a file/directory leaf, find the nested list of its
     parents, not including itself
-    '''
+    """
     parent_index = int(parent_tree[nodenumber])
     path = []
     path.append(parent_index)
@@ -114,7 +114,8 @@ def reconstruct_path(parent_tree, nodenumber):
 
 # TODO: add handling if nodenumber is a file and not a directory
 def dirs_under_path(tree, leaves, nodenumber):
-    '''Find directories under a path given the tree and names'''
+    """Find directories under a path given the tree and names
+    """
     dirlist = []
     for branch in tree[nodenumber]:
         entry = leaves[repr(branch)]
@@ -126,9 +127,9 @@ def dirs_under_path(tree, leaves, nodenumber):
 
 
 def flatten(list_in, ltypes=(list, tuple)):
-    '''see:
+    """see:
     http://rightfootin.blogspot.com/2006/09/more-on-python-flatten.html
-    '''
+    """
     ltype = type(list_in)
     list_in = list(list_in)
     i = 0
@@ -145,7 +146,8 @@ def flatten(list_in, ltypes=(list, tuple)):
 
 
 def reconstruct_pathname(parent_tree, leaves, nodenumber):
-    '''given the index of a directory/file leaf, reconstruct its full path'''
+    """given the index of a directory/file leaf, reconstruct its full path
+    """
     # append the path itself (on top of parent path)
     path = [nodenumber]
     path.append(reconstruct_path(parent_tree, nodenumber))
@@ -169,7 +171,8 @@ def reconstruct_pathname(parent_tree, leaves, nodenumber):
 
 
 def hashes_under_tree(tree, leaves, tree_index, verbose=False):
-    '''Find all the hashes under a directory given the tree and names'''
+    """Find all the hashes under a directory given the tree and names
+    """
     dirpath = dirs_under_path(tree, leaves, tree_index)
     dirpath = flatten(dirpath)
     hashlist = []

@@ -1,7 +1,7 @@
-'''
+"""
 Parse mtree spec files -> a file tree dictionary with checksums and file sizes
 Eric Switzer Aug. 5 2011
-'''
+"""
 import shelve
 import utils
 # TODO: document + unit tests
@@ -11,13 +11,13 @@ import utils
 
 # TODO: more efficient implementation using xreadlines?
 def clean_mtree_spec(filename_in, filename_out):
-    '''prepare the mtree spec file for single-line parser
+    """prepare the mtree spec file for single-line parser
     equivalent to:
     cat mtree_test.spec | \
         sed 'N;s/\\\n *//g;P;D;' | \
         sed 'N;s/\\\n *//g;P;D;' | \
         sed 'N;s/\n\.\./ ../g;P;D;' > mtree_test.spec_clean
-    '''
+    """
     mtree_rawspecfile = open(filename_in, 'r')
     mtree_specfile = open(filename_out, 'w')
 
@@ -35,7 +35,8 @@ def clean_mtree_spec(filename_in, filename_out):
 
 
 def parse_fileitem(fileitem):
-    '''parse the file information in a line of the mtree spec'''
+    """parse the file information in a line of the mtree spec
+    """
     fileitem_split = fileitem.split()
     if (len(fileitem_split) < 1):
         print "parse_filename: input error"
@@ -52,7 +53,8 @@ def parse_fileitem(fileitem):
 
 
 def parse_line(line):
-    '''parse a single line in the mtree spec file'''
+    """parse a single line in the mtree spec file
+    """
     line_split = line.split()
     (line_type, entry) = ('undetermined', 'undetermined')
 
@@ -86,9 +88,9 @@ def parse_line(line):
 
 # TODO: make representation more compact (using strings to rep. md5s now)
 def parse_mtree(filename):
-    '''parse an mtree into a dictionary describing the branches at each node
+    """parse an mtree into a dictionary describing the branches at each node
     and a separate dictionary with information about each item
-    '''
+    """
     filename_clean = filename + "_clean"
     clean_mtree_spec(filename, filename_clean)
 
@@ -155,9 +157,9 @@ def parse_mtree(filename):
 # TODO: is it faster to index by integer and convert to string for shelve keys
 # or to use strings as keys throughout?
 def process_mtree(filename, tree_shelvename, leaves_shelvename):
-    '''read an mtree spec file and convert it into a python representation,
+    """read an mtree spec file and convert it into a python representation,
     written out as shelve files
-    '''
+    """
     print "parsing mtree file"
     (link_list, lookup) = parse_mtree(filename)
 
@@ -183,7 +185,9 @@ def process_mtree(filename, tree_shelvename, leaves_shelvename):
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    #process_mtree("mtree.spec_5sept11", "mtree_tree.shelve",
-    #                                  "mtree_leaves.shelve")
-    process_mtree("mtree_2TB_mac.spec", "mtree_2TB_tree.shelve",
-                                      "mtree_2TB_leaves.shelve")
+    #process_mtree("mtree.spec_17Jun12", "mtree_tree.shelve",
+    #                                     "mtree_leaves.shelve")
+    process_mtree("mtree.toaster.spec_17Jun12", "mtree_tree_toaster.shelve",
+                                                "mtree_leaves_toaster.shelve")
+    #process_mtree("mtree_2TB_mac.spec", "mtree_2TB_tree.shelve",
+    #                                  "mtree_2TB_leaves.shelve")
