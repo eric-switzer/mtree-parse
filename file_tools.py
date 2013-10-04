@@ -4,9 +4,21 @@ import utils
 import copy
 
 
+def find_duplicates(tree_shelvename, leaves_shelvename):
+    tree = shelve.open(tree_shelvename, 'r')
+    leaves = shelve.open(leaves_shelvename, 'r')
+    parent_tree = utils.make_parent_tree(tree)
+    volhash = utils.make_hash_index(parent_tree, leaves)
+
+    for key, filelist in volhash.iteritems():
+        print key + "-" * 48
+        for filename in filelist:
+            print "%s" % filename
+
+
 # TODO: output one file with duplicates, one with uniques
 # TODO: output script to move uniques
-def find_duplicate(tree_shelvename, leaves_shelvename,
+def find_cross_duplicates(tree_shelvename, leaves_shelvename,
                    ctree_shelvename, cleaves_shelvename,
                    write_rm_list=None):
     """locate all of the checksums on one volume in a comparison volume
@@ -128,11 +140,15 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    find_largest_common_directories("mtree_tree.shelve",
-                                    "mtree_leaves.shelve",
-                                    print_size_only=False,
-                                    exclude_list=["iPhoto", "Documents"])
+    find_duplicates("mtree_tree.shelve",
+                    "mtree_leaves.shelve")
 
-    #find_duplicate("mtree_tree_toaster.shelve", "mtree_leaves_toaster.shelve",
-    #               "mtree_tree.shelve", "mtree_leaves.shelve",
-    #               write_rm_list="clean.bash")
+    #find_largest_common_directories("mtree_tree.shelve",
+    #                                "mtree_leaves.shelve",
+    #                                print_size_only=False,
+    #                                exclude_list=["iPhoto", "Documents"])
+
+    #find_cross_duplicates("mtree_tree_toaster.shelve",
+    #                      "mtree_leaves_toaster.shelve",
+    #                      "mtree_tree.shelve", "mtree_leaves.shelve",
+    #                      write_rm_list="clean.bash")
