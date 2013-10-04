@@ -64,21 +64,34 @@ def decorate_with_aggregates(tree, leaves, in_field, out_field,
 
 
 # TODO: save out entry = leaves[leafkey]; entry["leaf_number"] = leafkey
-def make_hash_index(parent_tree, leaves):
+def make_hash_index(parent_tree, leaves, entry_type='file'):
     """make a dictionary which links a checksum to all its files:
         { md5 : [file1, file2, ...] }
     """
     md5dict = {}
+
+    if entry_type == "file":
+        md5field = "md5digest"
+
+    if entry_type == "dir":
+        md5field = "md5dir"
+
     for leafkey in leaves.keys():
-        if ((leaves[leafkey]['type'] == 'file') and
-            ('md5digest' in leaves[leafkey])):
-            item_md5 = leaves[leafkey]['md5digest']
+        if ((leaves[leafkey]['type'] == entry_type) and
+            (md5field in leaves[leafkey])):
+            item_md5 = leaves[leafkey][md5field]
             if item_md5 not in md5dict:
                 md5dict[item_md5] = []
 
-            entry = reconstruct_pathname(parent_tree, leaves, int(leafkey))
+            if entry_type == "dir":
+                entry = leaves[leafkey]
+                entry["leaf_number"] = leafkey
+
+            if entry_type == "file":
+                entry = reconstruct_pathname(parent_tree, leaves, int(leafkey))
+                #print item_md5 + entry
+
             md5dict[item_md5].append(entry)
-            #print item_md5 + entry
 
     return md5dict
 

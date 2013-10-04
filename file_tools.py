@@ -60,18 +60,10 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
     leaves = shelve.open(leaves_shelvename, 'r')
     parent_tree = utils.make_parent_tree(tree)
 
-    md5dict = {}
+    md5dict = utils.make_hash_index(parent_tree, leaves,
+                                    entry_type="dir")
+
     md5_size_dict = {}
-    for leafkey in leaves.keys():
-        if (leaves[leafkey]['type'] == 'dir'):
-            item_md5 = leaves[leafkey]['md5dir']
-            if item_md5 not in md5dict:
-                md5dict[item_md5] = []
-
-            entry = leaves[leafkey]
-            entry["leaf_number"] = leafkey
-
-            md5dict[item_md5].append(entry)
 
     for md5_key in md5dict.keys():
         file_size = []
@@ -136,11 +128,11 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    #find_largest_common_directories("mtree_tree.shelve",
-    #                                "mtree_leaves.shelve",
-    #                                print_size_only=False,
-    #                                exclude_list=["iPhoto", "Documents"])
+    find_largest_common_directories("mtree_tree.shelve",
+                                    "mtree_leaves.shelve",
+                                    print_size_only=False,
+                                    exclude_list=["iPhoto", "Documents"])
 
-    find_duplicate("mtree_tree_toaster.shelve", "mtree_leaves_toaster.shelve",
-                   "mtree_tree.shelve", "mtree_leaves.shelve",
-                   write_rm_list="clean.bash")
+    #find_duplicate("mtree_tree_toaster.shelve", "mtree_leaves_toaster.shelve",
+    #               "mtree_tree.shelve", "mtree_leaves.shelve",
+    #               write_rm_list="clean.bash")
