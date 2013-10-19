@@ -1,5 +1,7 @@
 Parse mtree files into a file tree dictionary with checksums and file sizes
 run mtree as:
-mtree -c -K md5digest -p test_tree/ > mtree_test.spec
+`mtree -c -K md5digest -p test_tree/ > mtree_test.spec`
 
 mtree is BSD but is available for linux through http://code.google.com/p/mtree-port/ and other ports.
+You'll need to get openssl:
+`sudo apt-get install openssl libssl-dev` 

@@ -4,9 +4,12 @@ import utils
 import copy
 
 
-def find_duplicates(tree_shelvename, leaves_shelvename):
-    tree = shelve.open(tree_shelvename, 'r')
-    leaves = shelve.open(leaves_shelvename, 'r')
+def find_duplicates(tree_shelvename):
+    mtree_shelve = shelve.open(mtree_shelvename, 'r')
+    tree = mtree_shelve['tree']
+    leaves = mtree_shelve['leaves']
+    mtree_shelve.close()
+
     parent_tree = utils.make_parent_tree(tree)
     volhash = utils.make_hash_index(parent_tree, leaves)
 
@@ -18,24 +21,30 @@ def find_duplicates(tree_shelvename, leaves_shelvename):
 
 # TODO: output one file with duplicates, one with uniques
 # TODO: output script to move uniques
-def find_cross_duplicates(tree_shelvename, leaves_shelvename,
-                   ctree_shelvename, cleaves_shelvename,
-                   write_rm_list=None):
+def find_cross_duplicates(mtree_shelvename, cmtree_shelvename,
+                          write_rm_list=None):
     """locate all of the checksums on one volume in a comparison volume
     write_rm_list optionally prints rm commands to delete anything that exists
     somewhere on the comparison volume. rm_list is only files, but to prune
     emtpy directories, issue:
     find <parent-dir> -depth -type d -empty -exec rmdir -v {} \;
     """
-    tree = shelve.open(tree_shelvename, 'r')
-    leaves = shelve.open(leaves_shelvename, 'r')
-    parent_tree = utils.make_parent_tree(tree)
-    ctree = shelve.open(ctree_shelvename, 'r')
-    cleaves = shelve.open(cleaves_shelvename, 'r')
-    parent_ctree = utils.make_parent_tree(ctree)
+    mtree_shelve = shelve.open(mtree_shelvename, 'r')
+    tree = mtree_shelve['tree']
+    leaves = mtree_shelve['leaves']
+    mtree_shelve.close()
 
+    parent_tree = utils.make_parent_tree(tree)
     volhash = utils.make_hash_index(parent_tree, leaves)
+
+    cmtree_shelve = shelve.open(cmtree_shelvename, 'r')
+    ctree = cmtree_shelve['tree']
+    cleaves = cmtree_shelve['leaves']
+    cmtree_shelve.close()
+
+    parent_ctree = utils.make_parent_tree(ctree)
     cvolhash = utils.make_hash_index(parent_ctree, cleaves)
+
     if write_rm_list:
         rmlistfile = open(write_rm_list, 'w')
 
@@ -62,14 +71,17 @@ def find_cross_duplicates(tree_shelvename, leaves_shelvename,
 # TODO: break this into smaller component functions
 # TODO: make more efficient
 # TODO: make exclude list
-def find_largest_common_directories(tree_shelvename, leaves_shelvename,
+def find_largest_common_directories(mtree_shelvename,
                                     print_size_only=False,
                                     exclude_list=[]):
     """find the largest directories that share the same checksum of all data
     under them
     """
-    tree = shelve.open(tree_shelvename, 'r')
-    leaves = shelve.open(leaves_shelvename, 'r')
+    mtree_shelve = shelve.open(mtree_shelvename, 'r')
+    tree = mtree_shelve['tree']
+    leaves = mtree_shelve['leaves']
+    mtree_shelve.close()
+
     parent_tree = utils.make_parent_tree(tree)
 
     md5dict = utils.make_hash_index(parent_tree, leaves,
@@ -140,15 +152,21 @@ def find_largest_common_directories(tree_shelvename, leaves_shelvename,
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    find_duplicates("mtree_tree.shelve",
-                    "mtree_leaves.shelve")
+    #find_duplicates("mtree.shelve")
 
-    #find_largest_common_directories("mtree_tree.shelve",
-    #                                "mtree_leaves.shelve",
+    #find_largest_common_directories("mtree.shelve",
     #                                print_size_only=False,
     #                                exclude_list=["iPhoto", "Documents"])
+    find_cross_duplicates("mtree_maxtor_unix.shelve.db", "mtree_side.shelve.db",
+                          write_rm_list="cleanunix_fromside.bash")
 
-    #find_cross_duplicates("mtree_tree_toaster.shelve",
-    #                      "mtree_leaves_toaster.shelve",
-    #                      "mtree_tree.shelve", "mtree_leaves.shelve",
-    #                      write_rm_list="clean.bash")
+    find_cross_duplicates("mtree_maxtor_unix.shelve.db", "mtree_mac.shelve.db",
+                          write_rm_list="cleanunix_frommac.bash")
+
+    find_cross_duplicates("mtree_maxtor_mac.shelve.db", "mtree_side.shelve.db",
+                          write_rm_list="cleanmac_fromside.bash")
+
+    find_cross_duplicates("mtree_maxtor_mac.shelve.db", "mtree_mac.shelve.db",
+                          write_rm_list="cleanmac_frommac.bash")
+
+

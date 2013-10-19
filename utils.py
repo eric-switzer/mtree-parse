@@ -34,8 +34,8 @@ def decorate_with_aggregates(tree, leaves, in_field, out_field,
     that they contain
     """
     agg_list = Filedata()
-    for leaf_ind in tree[level]:
-        leaf_info = leaves[leaf_ind]
+    for leaf_ind in tree[repr(level)]:
+        leaf_info = leaves[repr(leaf_ind)]
         if (leaf_info['type'] == 'file'):
             # also include (leaf_info['size'] == '0')?
             if 'link' in leaf_info:
@@ -55,10 +55,10 @@ def decorate_with_aggregates(tree, leaves, in_field, out_field,
             #print "***", leaf_ind, agg_list.property_list
 
     if include_dir:
-        agg_list.append(leaves[level][in_field])
+        agg_list.append(leaves[repr(level)][in_field])
 
     result = getattr(agg_list, callback)()
-    leaves[level][out_field] = result
+    leaves[repr(level)][out_field] = result
     #print "****", leaf_ind, agg_list.property_list, result
     return result
 

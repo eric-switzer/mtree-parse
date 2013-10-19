@@ -154,11 +154,11 @@ def parse_mtree(filename):
             direnvironment.append(index)
 
             # assign a number to the directory
-            tree_leaves[index] = line_entry
+            tree_leaves[repr(index)] = line_entry
             # give the directory a list of contents
-            file_tree[index] = []
+            file_tree[repr(index)] = []
             if (parent_index != None):
-                file_tree[parent_index].append(index)
+                file_tree[repr(parent_index)].append(index)
 
             index += 1
 
@@ -172,15 +172,15 @@ def parse_mtree(filename):
             # add a "type" entry for files, to be explicit
             line_entry["type"] = "file"
             parent_index = direnvironment[-1]
-            file_tree[parent_index].append(index)
-            tree_leaves[index] = line_entry
+            file_tree[repr(parent_index)].append(index)
+            tree_leaves[repr(index)] = line_entry
 
             index += 1
 
         # assign directory info to the directory
         if (line_type == "dir"):
             parent_index = direnvironment[-1]
-            tree_leaves[parent_index] = line_entry
+            tree_leaves[repr(parent_index)] = line_entry
             # the file_tree is established in the "push"
 
     mtree_specfile.close()
@@ -189,14 +189,14 @@ def parse_mtree(filename):
 
 # TODO: is it faster to index by integer and convert to string for shelve keys
 # or to use strings as keys throughout?
-def process_mtree(filename, tree_shelvename, leaves_shelvename):
+def process_mtree(filename, shelvename):
     """read an mtree spec file and convert it into a python representation,
     written out as shelve files
 
     add cumulative checksums (checksum of all checksums under a directory)
     add up all files under a directory for total tree size
     """
-    print "parsing mtree file"
+    print "parsing mtree file: %s" % filename
     (file_tree, tree_leaves) = parse_mtree(filename)
 
     print "adding cumulative checksums, md5dir in tree_leaves table"
@@ -207,25 +207,15 @@ def process_mtree(filename, tree_shelvename, leaves_shelvename):
     utils.decorate_with_aggregates(file_tree, tree_leaves, "size", "tree_size",
                                    "total", include_dir=True)
 
-    print "writing to shelve files"
-    outtree = shelve.open(tree_shelvename, 'n')
-    for nodekey in file_tree.keys():
-        outtree[repr(nodekey)] = file_tree[nodekey]
+    print "writing to shelve file: %s" % (shelvename)
 
-    outtree.close()
+    outshelve = shelve.open(shelvename, 'n', protocol=2)
+    outshelve['tree'] = file_tree
+    outshelve['leaves'] = tree_leaves
 
-    outleaves = shelve.open(leaves_shelvename, 'n')
-    for leafkey in tree_leaves.keys():
-        outleaves[repr(leafkey)] = tree_leaves[leafkey]
-
-    outleaves.close()
+    outshelve.close()
 
 
 # TODO: command-line utility
 if __name__ == '__main__':
-    #process_mtree("mtree_2013Sept15.spec", "mtree_tree.shelve",
-    #                                     "mtree_leaves.shelve")
-    #process_mtree("mtree.toaster.spec_17Jun12", "mtree_tree_toaster.shelve",
-    #                                            "mtree_leaves_toaster.shelve")
-    #process_mtree("mtree_2TB_mac.spec", "mtree_2TB_tree.shelve",
-    #                                  "mtree_2TB_leaves.shelve")
+    process_mtree("maxtor_mac_19oct13.spec", "mtree_maxtor_mac.shelve")
